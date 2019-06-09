@@ -5,21 +5,20 @@
 Find Cas9 binding sites for HeliCas-FISH. Output sequences between binding sites for subsequent probe design.
 
 ```
-./cas9BDFinder.py [-rs] [-d d1 d2] [-g g1 g2] seq.fasta N output
+usage: cas9BDFinder.py [-h] [-r] [-g1 G1] [-g2 G2] [-d1 D1] [-d2 D2] sequence.fasta N output
 
-Required:
+positional arguments:
+  sequence.fasta  target genomic sequence(s).
+  N               number of binding sites.
+  output          output filename.
 
-seq.fasta Target genomic sequence(s).
-N         Number of binding sites.
-output    Output filename.
-
-Optional:
-
--r Search the complementary strand. Default to forward strand.
--s Consider sequence dependence of Cas9 activity. Default does not consider sequence dependence.
-
--d d1 d2  Constrain the spacing between adjacent Cas9 binding sites to be within [x1, x2) bp. Default to [100, 200).
--g g1 g2  Range of GC content. Two floats within [0, 1]. Default to [0, 1].
+optional arguments:
+  -h, --help      show this help message and exit
+  -r              search the reverse complementary strand.
+  -g1 G1          range of GC content. Constrain the GC content of Cas9 binding site to be within [g1 g2]. Default to [0, 1].
+  -g2 G2
+  -d1 D1          constrain the spacing between adjacent Cas9 binding sites to be within [d1, d2) bp. Default to [100, 200).
+  -d2 D2
 
 ```
 
