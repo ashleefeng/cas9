@@ -158,9 +158,10 @@ def find_cluster(seq, start, clusterMinSize, g1, g2, d1, d2, n):
 
     if len(buff) < clusterMinSize:
 
-       return [], -1
+        return [], ptr
 
-    return buff, ptr
+    else: 
+        return buff, ptr
 
 """
 Main function for identifying cas9 binding sites
@@ -185,13 +186,8 @@ def get_sgRNA(seq, g1, g2, d1, d2, n, clusterMinSize):
     printed = False
     
     while (ptr <= (len(seq)-BD_LEN)) and (len(sgRNA_list) <= n):
-
-    	if ptr > 2000 and not printed:
-    		print("Searching at %dth nucleotide." %ptr)
-    		printed = True
         
         cluster, ptr = find_cluster(seq, ptr, clusterMinSize, g1, g2, d1, d2, n - len(sgRNA_list))
-        print(ptr)
         
         # found cluster
 
