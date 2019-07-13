@@ -59,20 +59,30 @@ output: boolean, True if the protospacer is bad
 
 """
 def is_bad(protospacer, g1=0, g2=1):
-
+    
     # Check affinity
 
     if ('N' in protospacer) or ('n' in protospacer):
         return True
+    # 3rd nucleotide is C on guide RNA
     if protospacer[19-2] in 'Gg':
         return True
+    # 17th nucleotide is U on guide RNA
     if protospacer[19-16] in 'Aa':
         return True
-    if protospacer[19-17] in 'Aa':
-        return True
+    # 18th nucleotide is U on guide RNA
+    # if protospacer[19-17] in 'Aa':
+    #     return True
+    # 19th nucleotide is U on guide RNA
     if protospacer[19-18] in 'Aa':
         return True
-    if protospacer[19-19] in 'AaGg':
+    
+    # 20th is C and U 
+    # if protospacer[19-19] in 'AaGg':
+    #     return True
+    
+    # 20th U
+    if protospacer[19-19] in 'Aa':
         return True
 
     # Check gc content
@@ -128,7 +138,7 @@ def find_cluster(seq, start, clusterMinSize, g1, g2, d1, d2, n):
             if is_bad(protospacer):
                 
                 ptr += 1
-                print("Protospacer %d is bad: %s" %(ptr, protospacer))
+                print("Protospacer %d is bad: %s, gc content %.2f" %(ptr, protospacer, gc_content(protospacer)))
                 continue
 
             buff.append(ptr)
@@ -172,10 +182,16 @@ def get_sgRNA(seq, g1, g2, d1, d2, n, clusterMinSize):
     
     ptr = 0
     sgRNA_list = []
+    printed = False
     
     while (ptr <= (len(seq)-BD_LEN)) and (len(sgRNA_list) <= n):
+
+    	if ptr > 2000 and not printed:
+    		print("Searching at %dth nucleotide." %ptr)
+    		printed = True
         
         cluster, ptr = find_cluster(seq, ptr, clusterMinSize, g1, g2, d1, d2, n - len(sgRNA_list))
+        print(ptr)
         
         # found cluster
 
@@ -302,9 +318,9 @@ if __name__ == '__main__':
     # Optional arguments
 
     parser.add_argument('-r', action='store_true', help='search the reverse complementary strand.')
-    parser.add_argument('-g1', type=float, default=0, help='min GC content of protospacers. Default to 0.')
-    parser.add_argument('-g2', type=float, default=1, help='max GC content of protospacers. Default to 1.')
-    parser.add_argument('-d1', type=int, default=100, help='min distance between binding sites. Default to 100.')
+    parser.add_argument('-g1', type=float, default=0.35, help='min GC content of protospacers. Default to 0.35.')
+    parser.add_argument('-g2', type=float, default=0.75, help='max GC content of protospacers. Default to 0.75.')
+    parser.add_argument('-d1', type=int, default=50, help='min distance between binding sites. Default to 50.')
     parser.add_argument('-d2', type=int, default=200, help='max distance between binding sites. Default to 200.')
     parser.add_argument('-clusterMinSize', type=int, default=1, help='minimum number of Cas9 binding sites in one cluster. Default to 1.')
 
