@@ -12,15 +12,10 @@ class FASTAReader(object):
         self.file = file
         self.last_ident = None
         self.prev_line = True
+        self.isnext = True
     
     def __iter__(self):
         return self
-        
-    def isnext(self):
-        if self.prev_line == "":
-            return False
-        else:
-            return True
     
     def next(self):
                 
@@ -33,7 +28,7 @@ class FASTAReader(object):
             # Verify it is a header line
             assert line.startswith (">")
 
-            ident = line.lstrip(">").rstrip('\n')
+            ident = line.lstrip(">").rstrip("\r\n")
             # ident = line.split()[1:]
         
         else:
@@ -43,12 +38,17 @@ class FASTAReader(object):
         sequences = []
 
         while True:
-            line = self.file.readline().rstrip("\r\n")
+            line = self.file.readline()
+            if line == '':
+                self.isnext = False
+                break
+
+            line = line.rstrip("\r\n")
+            
             if line.startswith(">"):
                 self.last_ident = line.lstrip('>')
                 break
-            elif line == "":
-                break
+
             else:
                 sequences.append(line)
         

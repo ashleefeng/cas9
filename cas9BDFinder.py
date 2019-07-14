@@ -88,7 +88,7 @@ def is_bad(protospacer, g1=0, g2=1):
     # Check gc content
 
     if (gc_content(protospacer) < g1) or (gc_content(protospacer) > g2):
-        print("gc content")
+        # print("gc content")
         return True
     
     else:
@@ -138,7 +138,7 @@ def find_cluster(seq, start, clusterMinSize, g1, g2, d1, d2, n):
             if is_bad(protospacer):
                 
                 ptr += 1
-                print("Protospacer %d is bad: %s, gc content %.2f" %(ptr, protospacer, gc_content(protospacer)))
+                # print("Protospacer %d is bad: %s, gc content %.2f" %(ptr, protospacer, gc_content(protospacer)))
                 continue
 
             buff.append(ptr)
@@ -226,19 +226,22 @@ def output_writer(seq, sgRNA_indices, out_file, use_revcomp, seq_name, sgrna_fil
         
         if count > 0:
             
-            interval_start = prev_sg_end
-            interval_end = sg_start
+            interval_start = prev_sg_end + 4
+            interval_end = sg_start - 4
             interval = seq[interval_start:interval_end]
-            
-            if not use_revcomp:
-                
-                out_file.write('>%s_interval_%d_%d_%d\n%s\n'%(seq_name, count, interval_start, interval_end, interval))
-            
-            else:
-                out_file.write('>%s_interval_%d_%d_%d\n%s\n'%(seq_name, count, seq_len - interval_start, seq_len - interval_end, interval))
 
-            sgrna_file.write('>%s_sgRNA_%d_%d\n' %(seq_name, count + 1, sg_start))
-            sgrna_file.write('%s\n' %seq[sg_start : sg_end])
+            if len(interval) < d2:
+            
+                if not use_revcomp:
+                    
+                    out_file.write('>%s_interval_%d_%d_%d\n%s\n'%(seq_name, count, interval_start, interval_end, interval))
+                
+                else:
+
+                    out_file.write('>%s_interval_%d_%d_%d\n%s\n'%(seq_name, count, seq_len - interval_start, seq_len - interval_end, interval))
+
+        sgrna_file.write('>%s_sgRNA_%d_%d\n' %(seq_name, count + 1, sg_start))
+        sgrna_file.write('%s\n' %seq[sg_start : sg_end])
         
         count += 1
         prev_sg_end = sg_end
@@ -309,7 +312,7 @@ if __name__ == '__main__':
 
     parser.add_argument('sequence.fasta', help='target genomic sequence(s).')
     parser.add_argument('N', type=int, help='max number of binding sites needed.')
-    parser.add_argument('output', help='output filename.')
+    # parser.add_argument('output', help='output filename.')
 
     # Optional arguments
 
@@ -324,7 +327,7 @@ if __name__ == '__main__':
 
     seq_fname = args['sequence.fasta']
     n = args['N']
-    out_fname = args['output']
+    # out_fname = args['output']
     d1 = args['d1']
     d2 = args['d2']
     g1 = args['g1']
@@ -337,12 +340,13 @@ if __name__ == '__main__':
     seq_file = open(seq_fname)
     fasta_reader = fasta.FASTAReader(seq_file)
 
-    out_file = open(out_fname, 'w')
-    out_prefix = out_fname.split('.')[0]
+    out_prefix = seq_fname.split('.')[0]
+    interval_fname = out_prefix + '_interval.fasta'
+    out_file = open(interval_fname, 'w')
     sgrna_fname = out_prefix + '_sgRNA.fasta'
     sgrna_file = open(sgrna_fname, 'w')
 
-    while fasta_reader.isnext():
+    while fasta_reader.isnext:
         
         # Get name and sequence of fasta entry
         
