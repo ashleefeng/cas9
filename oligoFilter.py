@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-
 import argparse
+from fasta import FASTAReader
 
 parser = argparse.ArgumentParser()
 
@@ -21,47 +21,79 @@ sgRNA_filename = args['sgRNA.fasta']
 interval_filename = args['interval.fasta']
 max_nonspecific = args['max_nonspecific'];
 
+oligo_filtered_fname = oligo_filename.split('.')[0] + '_filtered.tsv'
 sgRNA_filtered_fname = sgRNA_filename.split('.')[0] + '_filtered.fasta'
 interval_filtered_fname = interval_filename.split('.')[0] + '_filtered.fasta'
 
 oligo_file = open(oligo_filename)
 sgRNA_file = open(sgRNA_filename)
 interval_file = open(interval_filename)
+oligo_filtered_file = open(oligo_filtered_fname, 'w')
 sgRNA_filtered_file = open(sgRNA_filtered_fname, 'w')
 interval_filtered_file = open(interval_filtered_fname, 'w')
 
 
-count1 = 0
-count2 = 0
+tad2good = {}
+tad2bad = {}
 
 good_sgRNA = set()
 good_interval = set()
+line_num = 0
 
 for line in oligo_file:
+    line_num += 1
     line = line.rstrip('\n')
     cols = line.split('\t')
     interval_name = cols[0]
+    if len(cols) < 8:
+        print line_num
+        print cols
+        continue
     binding_sites = cols[7].split(';')
+
     n_bd = 0
+    bind2rna = False
     
     for bd in binding_sites:
         bd_homolog = bd.split(',')
         for bdh in bd_homolog:
             n_bd += 1
 
-    print("Oligo %s has %d binding sites" %(interval_name, n_bd))
+            if ("ncrna" in bdh) or ("Escherichia" in bdh):
+
+                bind2rna = True
+
+                break
+
+            if n_bd > max_nonspecific:
+
+                break
+        
+        if bind2rna or (n_bd > max_nonspecific):
+
+            break
+
+
+
+    # print("Oligo %s has %d binding sites" %(interval_name, n_bd))
     
-    if n_bd <= max_nonspecific:
 
-        count1 += 1
+    tokens = interval_name.split('_')
 
-        interval_ID = int(interval_name.split('_')[3])
+    tad_name = tokens[0]
+
+    if (n_bd <= max_nonspecific) and not bind2rna:
+
+        oligo_filtered_file.write(line)
+        oligo_filtered_file.write('\n')
+
+        interval_ID = int(tokens[-3])
         sgRNA_start = interval_ID
         sgRNA_end = interval_ID + 1
 
         sgRNA_start_name = '_'.join(interval_name.split('_')[:-4]) + '_sgRNA_' + str(sgRNA_start)
         sgRNA_end_name = '_'.join(interval_name.split('_')[:-4]) + '_sgRNA_' + str(sgRNA_end)
-        print sgRNA_start_name
+        # print sgRNA_start_name
         
         if interval_name not in good_interval:
             good_interval.add(interval_name)
@@ -74,13 +106,36 @@ for line in oligo_file:
 
             good_sgRNA.add(sgRNA_end_name)
 
-    else:
-        count2 += 1
+        if tad_name not in tad2good:
 
-print("\n%d oligos are good" %count1)
-print("%d oligos are bad\n" %count2)
+            tad2good[tad_name] = 1
+
+        else:
+
+            tad2good[tad_name] += 1
+
+    else:
+
+        if tad_name not in tad2bad:
+
+            tad2bad[tad_name] = 1
+
+        else:
+
+            tad2bad[tad_name] += 1
+
+for tad in sorted(tad2good.keys()):
+
+    print("%s has %d good probes." %(tad, tad2good[tad]))
+
+    if tad in tad2bad.keys():
+
+        print("%s has %d bad probes." %(tad, tad2bad[tad]))
+
+    print("")
 
 oligo_file.close()
+oligo_filtered_file.close()
 
 iswriting = False
 good_count = 0
@@ -149,6 +204,64 @@ print("Thowing out %d intervals" %bad_count)
 
 interval_filtered_file.close()
 interval_file.close()
+
+
+# previously TADcounter.py
+
+sgRNA_file = open(sgRNA_filtered_fname)
+interval_file = open(interval_filtered_fname)
+
+print('sgRNA:')
+sgRNA_reader = FASTAReader(sgRNA_file)
+
+tad2sgRNA = {}
+
+while sgRNA_reader.isnext:
+
+    name, seq = sgRNA_reader.next()
+
+    tadID = name.split('_')[0]
+
+    if tadID not in tad2sgRNA:
+
+        tad2sgRNA[tadID] = 1
+
+    else:
+
+        tad2sgRNA[tadID] += 1
+
+for i in sorted(tad2sgRNA.keys()):
+
+    print("TAD %s has %d sgRNAs" %(i, tad2sgRNA[i]))
+
+print('\ninterval:')
+interval_reader = FASTAReader(interval_file)
+
+tad2interval = {}
+
+while interval_reader.isnext:
+
+    name, seq = interval_reader.next()
+
+    tadID = name.split('_')[0]
+
+    if tadID not in tad2interval:
+
+        tad2interval[tadID] = 1
+
+    else:
+
+        tad2interval[tadID] += 1
+
+for i in sorted(tad2interval.keys()):
+
+    print("TAD %s has %d intervals" %(i, tad2interval[i]))
+
+sgRNA_file.close()
+interval_file.close()
+
+
+
 
 
 

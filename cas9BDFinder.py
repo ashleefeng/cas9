@@ -154,7 +154,14 @@ def find_cluster(seq, start, clusterMinSize, g1, g2, d1, d2, n):
             curr_d += 1
             ptr += 1
 
+    # print buff, len(buff), (len(buff) < n), n
+    # print curr_d, d2, (len(buff) < n), (ptr < (len(seq)-BD_LEN))
     # Check if cluster is big enough
+
+    # print(len(buff), clusterMinSize)
+
+    if len(buff) > n:
+        return buff, -1
 
     if len(buff) < clusterMinSize:
 
@@ -185,10 +192,11 @@ def get_sgRNA(seq, g1, g2, d1, d2, n, clusterMinSize):
     sgRNA_list = []
     printed = False
     
-    while (ptr <= (len(seq)-BD_LEN)) and (len(sgRNA_list) <= n):
+    while (ptr <= (len(seq)-BD_LEN)) and (len(sgRNA_list) < n):
         
         cluster, ptr = find_cluster(seq, ptr, clusterMinSize, g1, g2, d1, d2, n - len(sgRNA_list))
-        
+        # print cluster, ptr
+
         # found cluster
 
         if ptr != -1:
@@ -274,13 +282,13 @@ class TestMethods(unittest.TestCase):
 
     def test_find_cluster(self):
         self.assertEqual(find_cluster(seq=self.dna2, start=0, clusterMinSize=2, g1=0, g2=1, d1=100, d2=10000, n=3), ([0, 123, 246], 369))
-        self.assertEqual(find_cluster(seq=self.dna2, start=0, clusterMinSize=2, g1=0, g2=1, d1=100, d2=10000, n=7), ([0, 123, 123*2, 123*3, 123*4, 123*5, 123*6], 123*7))
+        self.assertEqual(find_cluster(seq=self.dna2, start=0, clusterMinSize=2, g1=0, g2=1, d1=100, d2=10000, n=8), ([0, 123, 123*2, 123*3, 123*4, 123*5, 123*6], 123*7))
         
         self.assertEqual(find_cluster(seq=self.dna6, start=0, clusterMinSize=3, g1=0, g2=1, d1=5, d2=10, n=3), ([0, 28, 61], 89))
         self.assertEqual(find_cluster(seq=self.dna6, start=0, clusterMinSize=1, g1=0, g2=1, d1=5, d2=9, n=3), ([0, 28], 61))
         self.assertEqual(find_cluster(seq=self.dna6, start=61, clusterMinSize=1, g1=0, g2=1, d1=5, d2=9, n=3), ([61], 89))
-        self.assertEqual(find_cluster(seq=self.dna6, start=0, clusterMinSize=3, g1=0, g2=1, d1=5, d2=9, n=3), ([], -1))
-        self.assertEqual(find_cluster(seq=self.dna6, start=23, clusterMinSize=3, g1=0, g2=1, d1=5, d2=10, n=8), ([], -1))
+        self.assertEqual(find_cluster(seq=self.dna6, start=0, clusterMinSize=3, g1=0, g2=1, d1=5, d2=9, n=3), ([], 61))
+        self.assertEqual(find_cluster(seq=self.dna6, start=23, clusterMinSize=3, g1=0, g2=1, d1=5, d2=10, n=8), ([], 89))
 
     def test_get_sgRNA(self):
         self.assertEqual(get_sgRNA(seq=self.dna2, g1=0, g2=1, d1=100, d2=1000, n=3, clusterMinSize=2), [0, 123, 246])
@@ -291,8 +299,6 @@ class TestMethods(unittest.TestCase):
 # Constants
     
 BD_LEN = 23 # length of PAM + protospacer
-CLUSTER_MIN_SIZE = 10 # minimum size of binding site cluster
-
 
 if __name__ == '__main__':
 
@@ -334,6 +340,8 @@ if __name__ == '__main__':
     g2 = args['g2']
     use_revcomp = args['r']
     clusterMinSize = args['clusterMinSize']
+
+    print("clusterMinSize = %d" %clusterMinSize)
 
     # Read input files
 
