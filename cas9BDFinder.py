@@ -234,9 +234,11 @@ def output_writer(seq, sgRNA_indices, out_file, use_revcomp, seq_name, sgrna_fil
         
         if count > 0:
             
-            interval_start = prev_sg_end + 4
-            interval_end = sg_start - 4
-            interval = seq[interval_start:interval_end]
+            # interval_start = prev_sg_end + 4
+            # interval_end = sg_start - 4
+            interval_start = sg_start - 4
+            interval_end = prev_sg_end + 4
+            interval = reverse_complement(seq[interval_end:interval_start])
 
             if len(interval) < d2:
             

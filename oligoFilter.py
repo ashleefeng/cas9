@@ -13,13 +13,15 @@ parser.add_argument('oligo.txt', help='Output from OligoArray.')
 parser.add_argument('sgRNA.fasta', help='sgRNA candidates.')
 parser.add_argument('interval.fasta', help='Sequence between sgRNAs that belong to one cluster.')
 parser.add_argument('max_nonspecific', type=int, help='')
+parser.add_argument('num_probes', type=int, help='')
 
 args = vars(parser.parse_args())
 
 oligo_filename = args['oligo.txt']
 sgRNA_filename = args['sgRNA.fasta']
 interval_filename = args['interval.fasta']
-max_nonspecific = args['max_nonspecific'];
+max_nonspecific = args['max_nonspecific']
+num_probes = args['num_probes']
 
 oligo_filtered_fname = oligo_filename.split('.')[0] + '_filtered.tsv'
 sgRNA_filtered_fname = sgRNA_filename.split('.')[0] + '_filtered.fasta'
@@ -33,12 +35,14 @@ sgRNA_filtered_file = open(sgRNA_filtered_fname, 'w')
 interval_filtered_file = open(interval_filtered_fname, 'w')
 
 
+
 tad2good = {}
 tad2bad = {}
 
 good_sgRNA = set()
 good_interval = set()
 line_num = 0
+prob_num = 0
 
 for line in oligo_file:
     line_num += 1
@@ -84,35 +88,41 @@ for line in oligo_file:
 
     if (n_bd <= max_nonspecific) and not bind2rna:
 
-        oligo_filtered_file.write(line)
-        oligo_filtered_file.write('\n')
+        if (tad_name not in tad2good) or (tad2good[tad_name] < num_probes):
 
-        interval_ID = int(tokens[-3])
-        sgRNA_start = interval_ID
-        sgRNA_end = interval_ID + 1
+            prob_num += 1
+            TAD_ID = tokens[0]
+            interval_ID = int(tokens[-3])
+            probe_seq = cols[-1]
 
-        sgRNA_start_name = '_'.join(interval_name.split('_')[:-4]) + '_sgRNA_' + str(sgRNA_start)
-        sgRNA_end_name = '_'.join(interval_name.split('_')[:-4]) + '_sgRNA_' + str(sgRNA_end)
-        # print sgRNA_start_name
-        
-        if interval_name not in good_interval:
-            good_interval.add(interval_name)
-
-        if sgRNA_start_name not in good_sgRNA:
-
-            good_sgRNA.add(sgRNA_start_name)
+            oligo_filtered_file.write('>probe_%d_%s_int_%d\n' %(prob_num, TAD_ID, interval_ID))
+            oligo_filtered_file.write('%s\n' %probe_seq)
             
-        if sgRNA_end_name not in good_sgRNA:
+            sgRNA_start = interval_ID
+            sgRNA_end = interval_ID + 1
 
-            good_sgRNA.add(sgRNA_end_name)
+            sgRNA_start_name = '_'.join(interval_name.split('_')[:-4]) + '_sgRNA_' + str(sgRNA_start)
+            sgRNA_end_name = '_'.join(interval_name.split('_')[:-4]) + '_sgRNA_' + str(sgRNA_end)
+            # print sgRNA_start_name
+            
+            if interval_name not in good_interval:
+                good_interval.add(interval_name)
 
-        if tad_name not in tad2good:
+            if sgRNA_start_name not in good_sgRNA:
 
-            tad2good[tad_name] = 1
+                good_sgRNA.add(sgRNA_start_name)
+                
+            if sgRNA_end_name not in good_sgRNA:
 
-        else:
+                good_sgRNA.add(sgRNA_end_name)
 
-            tad2good[tad_name] += 1
+            if tad_name not in tad2good:
+
+                tad2good[tad_name] = 1
+
+            else:
+
+                tad2good[tad_name] += 1
 
     else:
 
@@ -167,7 +177,7 @@ for l in sgRNA_file:
             bad_count += 1
 
 print("Keeping %d sgRNAs" %good_count)
-print("Thowing out %d sgRNAs" %bad_count)
+print("Throwing out %d sgRNAs" %bad_count)
 
 sgRNA_filtered_file.close()
 sgRNA_file.close()
@@ -200,7 +210,7 @@ for l in interval_file:
             bad_count += 1
 
 print("\nKeeping %d intervals" %good_count)
-print("Thowing out %d intervals" %bad_count)
+print("Throwing out %d intervals" %bad_count)
 
 interval_filtered_file.close()
 interval_file.close()
