@@ -41,8 +41,8 @@ oligos_filtered.tsv, sgRNAs_filtered.fasta, and intervals_filtered.fasta
 
 positional arguments:
   oligo.txt        Output from OligoArray.
-  sgRNA.fasta      sgRNA candidates.
-  interval.fasta   Sequence between sgRNAs that belong to one cluster.
+  sgRNA.fasta      sgRNA candidates from cas9BDFinder.py
+  interval.fasta   Sequence between sgRNAs that belong to one cluster from cas9BDFinder.py
   max_nonspecific  Maximum number of nonspecific sites allowed for one FISH probe
   num_probes       Maximum number of probes needed for one region
 
