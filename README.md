@@ -43,8 +43,7 @@ positional arguments:
   oligo.txt        Output from OligoArray.
   sgRNA.fasta      sgRNA candidates.
   interval.fasta   Sequence between sgRNAs that belong to one cluster.
-  max_nonspecific  Maximum number of nonspecific sites allowed for one FISH
-                   probe
+  max_nonspecific  Maximum number of nonspecific sites allowed for one FISH probe
   num_probes       Maximum number of probes needed for one region
 
 optional arguments:
