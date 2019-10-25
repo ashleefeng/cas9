@@ -50,8 +50,8 @@ for line in oligo_file:
     cols = line.split('\t')
     interval_name = cols[0]
     if len(cols) < 8:
-        print line_num
-        print cols
+        print(line_num)
+        print(cols)
         continue
     binding_sites = cols[7].split(';')
 

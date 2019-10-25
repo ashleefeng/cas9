@@ -28,7 +28,9 @@ class FASTAReader(object):
             # Verify it is a header line
             assert line.startswith (">")
 
-            ident = line.lstrip(">").rstrip("\r\n")
+            ident = line.lstrip('>')
+            ident = ident.rstrip("\r\n")
+            ident = ident.rstrip("\n")
             # ident = line.split()[1:]
         
         else:
@@ -44,6 +46,7 @@ class FASTAReader(object):
                 break
 
             line = line.rstrip("\r\n")
+            line = line.rstrip("\n")
             
             if line.startswith(">"):
                 self.last_ident = line.lstrip('>')

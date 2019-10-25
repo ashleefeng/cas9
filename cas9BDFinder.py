@@ -350,7 +350,7 @@ if __name__ == '__main__':
     seq_file = open(seq_fname)
     fasta_reader = fasta.FASTAReader(seq_file)
 
-    out_prefix = seq_fname.split('.')[0]
+    out_prefix = seq_fname.rsplit('.', 1)[0]
     interval_fname = out_prefix + '_interval.fasta'
     out_file = open(interval_fname, 'w')
     sgrna_fname = out_prefix + '_sgRNA.fasta'
