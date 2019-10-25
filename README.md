@@ -27,10 +27,26 @@ optional arguments:
 
 ## Design FISH probes with OligoArray
 
-Run OligoArray on regions between Cas9 binding sites.
-
-Filter probes for quality.
+Run OligoArray on regions between identified Cas9 binding sites.
 
 ## Finalize Cas9 sgRNA sequences
 
-Match Cas9 binding sites with filtered probes
+Filtered the FISH probes for good quality and discard Cas9 sites flanking bad probes.
+
+```
+usage: oligoFilter.py [-h] oligo.txt sgRNA.fasta interval.fasta max_nonspecific num_probes
+
+Throw out bad sgRNAs and FISH probes based on OligoArray output. Outputs
+oligos_filtered.tsv, sgRNAs_filtered.fasta, and intervals_filtered.fasta
+
+positional arguments:
+  oligo.txt        Output from OligoArray.
+  sgRNA.fasta      sgRNA candidates.
+  interval.fasta   Sequence between sgRNAs that belong to one cluster.
+  max_nonspecific  Maximum number of nonspecific sites allowed for one FISH
+                   probe
+  num_probes       Maximum number of probes needed for one region
+
+optional arguments:
+  -h, --help       show this help message and exit
+```
