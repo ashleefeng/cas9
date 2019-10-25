@@ -5,15 +5,15 @@ from fasta import FASTAReader
 
 parser = argparse.ArgumentParser()
 
-parser = argparse.ArgumentParser(description='Throw out bad sgRNAs based on OligoArray output.')
+parser = argparse.ArgumentParser(description='Throw out bad sgRNAs and FISH probes based on OligoArray output. Outputs oligos_filtered.tsv, sgRNAs_filtered.fasta, and intervals_filtered.fasta')
 
 # Required arguments
 
 parser.add_argument('oligo.txt', help='Output from OligoArray.')
-parser.add_argument('sgRNA.fasta', help='sgRNA candidates.')
-parser.add_argument('interval.fasta', help='Sequence between sgRNAs that belong to one cluster.')
-parser.add_argument('max_nonspecific', type=int, help='')
-parser.add_argument('num_probes', type=int, help='')
+parser.add_argument('sgRNA.fasta', help='sgRNA candidates from cas9BDFinder.py')
+parser.add_argument('interval.fasta', help='Sequence between sgRNAs that belong to one cluster from cas9BDFinder.py')
+parser.add_argument('max_nonspecific', type=int, help='Maximum number of nonspecific sites allowed for one FISH probe')
+parser.add_argument('num_probes', type=int, help='Maximum number of probes needed for one region')
 
 args = vars(parser.parse_args())
 
